@@ -14,7 +14,7 @@ const path = require('path');
 // Import configuration modules
 const { connectDatabase } = require('./config/database');
 const { initializeGCS } = require('./config/gcs');
-const { initializeFirebase } = require('./config/firebase');
+require('./config/firebase'); // Firebase initializes automatically on import
 
 // Initialize Express app
 const app = express();
@@ -150,11 +150,6 @@ const startServer = async () => {
     console.log('📦 Connecting to MongoDB...');
     await connectDatabase();
     console.log('✅ MongoDB connected\n');
-
-    // Initialize Firebase
-    console.log('🔐 Initializing Firebase...');
-    initializeFirebase();
-    console.log('✅ Firebase initialized\n');
 
     // Initialize Google Cloud Storage
     console.log('☁️  Initializing Google Cloud Storage...');
