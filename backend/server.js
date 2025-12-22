@@ -58,10 +58,10 @@ app.use(cors(corsOptions));
 // ============================================
 
 // Parse JSON request bodies
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '15mb' }));
 
 // Parse URL-encoded request bodies
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 // ============================================
 // LOGGING MIDDLEWARE
@@ -90,8 +90,8 @@ app.get('/api/health', (req, res) => {
 // Authentication routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
-// Document routes (will be added in Step 4)
-// app.use('/api/documents', require('./routes/documentRoutes'));
+// Document routes (Step 4: File Upload & GCS)
+app.use('/api/documents', require('./routes/documentRoutes'));
 
 // ============================================
 // ERROR HANDLING MIDDLEWARE
