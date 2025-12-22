@@ -4,9 +4,11 @@
  */
 
 const Document = require('../models/Document');
+const Subtopic = require('../models/Subtopic');
 const User = require('../models/User');
 const { uploadFile, deleteFile, generateSignedUrl } = require('../config/gcs');
 const { extractTextFromFile } = require('../utils/fileProcessor');
+const { detectSubtopics } = require('../services/subtopicService');
 
 /**
  * Upload document (file) to GCS and create document record
@@ -89,6 +91,36 @@ const uploadDocument = async (req, res) => {
 
     await document.save();
     console.log(`✅ Document record created: ${document._id}`);
+
+    // Step 5: Automatically detect subtopics from extracted text
+    console.log(`🔍 Detecting subtopics from document text...`);
+    try {
+      const detectedSubtopics = await detectSubtopics(extractionResult.text);
+      
+      if (detectedSubtopics.length > 0) {
+        // Save detected subtopics to database
+        for (const detected of detectedSubtopics) {
+          const subtopic = new Subtopic({
+            documentId: document._id,
+            title: detected.title,
+            description: detected.description,
+            extractedText: detected.extractedText,
+            wordCount: detected.extractedText.split(/\s+/).length,
+            order: detected.order,
+            detectionConfidence: Math.round(detected.confidence * 100),
+            geminiStatus: 'pending',
+          });
+
+          await subtopic.save();
+        }
+        console.log(`✅ Detected and saved ${detectedSubtopics.length} subtopics`);
+      } else {
+        console.log(`ℹ️  No subtopics detected in document`);
+      }
+    } catch (subtopicError) {
+      // Log error but don't fail the upload - subtopics are optional
+      console.warn(`⚠️  Subtopic detection failed: ${subtopicError.message}`);
+    }
 
     return res.status(201).json({
       success: true,
@@ -236,6 +268,10 @@ const deleteDocument = async (req, res) => {
     // Delete file from GCS
     console.log(`🗑️  Deleting from GCS: ${document.gcsPath}`);
     await deleteFile(document.gcsPath);
+
+    // Delete all associated subtopics
+    console.log(`🗑️  Deleting associated subtopics...`);
+    await Subtopic.deleteMany({ documentId });
 
     // Delete document record
     await Document.findByIdAndDelete(documentId);

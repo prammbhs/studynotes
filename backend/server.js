@@ -91,7 +91,16 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 
 // Document routes (Step 4: File Upload & GCS)
-app.use('/api/documents', require('./routes/documentRoutes'));
+const documentRoutes = require('./routes/documentRoutes');
+app.use('/api/documents', documentRoutes);
+
+// Subtopic routes (Step 5: Subtopic Identification)
+const subtopicRoutes = require('./routes/subtopicRoutes');
+app.use('/api/documents/:documentId/subtopics', subtopicRoutes);
+
+// Gemini Subtopic routes (Step 6: AI-Powered Extraction)
+const geminiSubtopicRoutes = require('./routes/geminiSubtopicRoutes');
+app.use('/api/documents/:documentId/subtopics', geminiSubtopicRoutes);
 
 // ============================================
 // ERROR HANDLING MIDDLEWARE
