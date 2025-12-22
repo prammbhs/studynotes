@@ -84,13 +84,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // ============================================
-// API ROUTES (Placeholder - Add routes here)
+// API ROUTES
 // ============================================
 
-// Example: Authentication routes (will be added in Step 3)
-// app.use('/api/auth', require('./routes/authRoutes'));
+// Authentication routes
+app.use('/api/auth', require('./routes/authRoutes'));
 
-// Example: Document routes (will be added in Step 4)
+// Document routes (will be added in Step 4)
 // app.use('/api/documents', require('./routes/documentRoutes'));
 
 // ============================================

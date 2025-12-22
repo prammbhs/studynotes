@@ -113,14 +113,15 @@ userSchema.virtual('fullName').get(function () {
 
 // Method to get public profile (without sensitive data)
 userSchema.methods.getPublicProfile = function () {
+  const profile = this.toObject();
   return {
-    _id: this._id,
-    firstName: this.firstName,
-    lastName: this.lastName,
-    email: this.email,
-    profileImage: this.profileImage,
-    bio: this.bio,
-    createdAt: this.createdAt,
+    _id: String(profile._id),
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    email: profile.email,
+    profileImage: profile.profileImage,
+    bio: profile.bio,
+    createdAt: profile.createdAt,
   };
 };
 

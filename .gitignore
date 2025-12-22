@@ -1,3 +1,5 @@
 node_modules/
 .env*
 CREDENTIALS_SETUP_GUIDE.md
+AUTH_TESTING_GUIDE.md
+generateToken.js
