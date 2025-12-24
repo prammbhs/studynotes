@@ -26,42 +26,56 @@ const extractStructureWithGemini = async (text) => {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
     // Create a detailed prompt for structure extraction
-    const prompt = `You are an expert document analyzer. Analyze the following text and extract its document structure.
+    // FOCUS: Extract only Unit-based subtopics, ignore Course Outcomes, References, TextBooks, Practicals
+    const prompt = `You are an expert document analyzer specialized in extracting course syllabus structure.
 
-IMPORTANT INSTRUCTIONS:
-1. Identify all main chapters/sections in the document
-2. For each chapter, identify its subtopics
-3. Preserve the original order and hierarchy
-4. Extract the main content for each section
+CRITICAL INSTRUCTIONS - FOLLOW EXACTLY:
+1. Extract ONLY the learning units/modules (Unit I, Unit II, Unit III, Unit IV, Unit V, Unit VI, etc.)
+2. DO NOT include anything that is NOT a unit
+3. COMPLETELY IGNORE these sections - NEVER include them:
+   - Course Outcomes
+   - Course Credit
+   - Learning Objectives  
+   - References
+   - Text Books
+   - Textbooks
+   - Practicals
+   - Experiments
+   - Course Title/Header
+   - Any metadata or non-unit information
+4. For each unit, extract the unit title and main topics covered
+5. Preserve the original order of units
 
 TEXT TO ANALYZE:
 ${text}
 
-RESPOND ONLY with a valid JSON array in this exact format (no markdown, no extra text):
+RESPOND ONLY with a valid JSON array containing ONLY units. Example format:
 [
   {
     "level": 1,
-    "title": "Chapter or Main Section Title",
-    "description": "Brief description of this chapter",
-    "content": "The main text content of this section",
+    "title": "Unit I: Introduction to DevOps",
+    "description": "Basics and fundamentals of DevOps",
+    "content": "Content of Unit I here",
     "order": 0
   },
   {
-    "level": 2,
-    "title": "Subsection or Topic Title",
-    "description": "Brief description",
-    "content": "The text content for this subsection",
+    "level": 1,
+    "title": "Unit II: Linux Commands",
+    "description": "Essential Linux commands",
+    "content": "Content of Unit II here",
     "order": 1
   }
 ]
 
-Rules:
-- level 1 = main chapters/sections
-- level 2 = subtopics within chapters
-- Preserve hierarchy order
-- Extract actual content from the text for each section
-- Keep descriptions under 150 characters
-- Return ONLY valid JSON, no other text`;
+STRICT RULES:
+- MUST start with "Unit" in the title
+- No course metadata
+- No references or textbooks
+- No outcomes or objectives
+- No practicals section
+- Only units matter
+- Return empty array [] if no units found
+- Return ONLY valid JSON`;
 
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
@@ -80,18 +94,31 @@ Rules:
       }
     }
 
-    console.log(`✅ Gemini extracted ${extractedStructure.length} topics/sections`);
+    console.log(`✅ Gemini extracted ${extractedStructure.length} items (before filtering)`);
 
     // Convert Gemini response to subtopic format
-    const subtopics = extractedStructure.map((item, index) => ({
-      order: index,
-      title: item.title || 'Untitled',
-      description: item.description || '',
-      extractedText: item.content || '',
-      detectionMethod: 'gemini-ai',
-      confidence: 0.92, // High confidence for AI extraction
-      hierarchyLevel: item.level || 1,
-    }));
+    // Only include items that are actual units
+    const subtopics = extractedStructure
+      .filter((item) => {
+        const title = (item.title || '').toLowerCase();
+        // Only keep items that contain "unit" in the title
+        const isUnit = title.includes('unit');
+        if (!isUnit) {
+          console.log(`⏭️  Filtering out non-unit: "${item.title}"`);
+        }
+        return isUnit;
+      })
+      .map((item, index) => ({
+        order: index,
+        title: item.title || 'Untitled',
+        description: item.description || '',
+        extractedText: item.content || '',
+        detectionMethod: 'gemini-ai',
+        confidence: 0.92, // High confidence for AI extraction
+        hierarchyLevel: item.level || 1,
+      }));
+
+    console.log(`✅ After filtering: ${subtopics.length} units found`);
 
     return subtopics;
   } catch (error) {

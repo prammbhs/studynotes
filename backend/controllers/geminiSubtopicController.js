@@ -212,7 +212,14 @@ const compareExtractionMethods = async (req, res) => {
     console.log(`📊 Comparing extraction methods for document: ${documentId}`);
 
     // Get pattern-based extraction
-    const patternResult = await detectSubtopics(document.originalText);
+    let patternResult = [];
+    let patternError = null;
+    try {
+      patternResult = await detectSubtopics(document.originalText);
+    } catch (error) {
+      patternError = error.message;
+      console.error(`❌ Pattern detection error: ${error.message}`);
+    }
 
     // Try Gemini extraction
     let geminiResult = null;
@@ -233,14 +240,19 @@ const compareExtractionMethods = async (req, res) => {
       success: true,
       data: {
         documentId,
-        patternBased: {
+        patternBased: patternError ? {
+          method: 'Pattern Matching (Step 5)',
+          error: patternError,
+          count: 0,
+          subtopics: [],
+        } : {
           method: 'Pattern Matching (Step 5)',
           count: patternResult.length,
           subtopics: patternResult.map((s) => ({
             title: s.title,
             confidence: s.confidence,
             detectionMethod: s.detectionMethod,
-            preview: s.description.substring(0, 80) + '...',
+            preview: (s.description || s.extractedText || '').substring(0, 80) + '...',
           })),
         },
         geminiAI: geminiResult ? {
@@ -251,7 +263,7 @@ const compareExtractionMethods = async (req, res) => {
             confidence: s.confidence,
             detectionMethod: s.detectionMethod,
             hierarchyLevel: s.hierarchyLevel,
-            preview: s.description.substring(0, 80) + '...',
+            preview: (s.description || s.extractedText || '').substring(0, 80) + '...',
           })),
         } : {
           method: 'Gemini AI (Step 6)',
@@ -268,6 +280,7 @@ const compareExtractionMethods = async (req, res) => {
       success: false,
       error: 'Failed to compare extraction methods',
       details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     });
   }
 };

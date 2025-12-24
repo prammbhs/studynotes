@@ -94,13 +94,14 @@ app.use('/api/auth', require('./routes/authRoutes'));
 const documentRoutes = require('./routes/documentRoutes');
 app.use('/api/documents', documentRoutes);
 
+// Gemini Subtopic routes (Step 6: AI-Powered Extraction)
+// IMPORTANT: Register before subtopicRoutes so /compare matches before /:subtopicId
+const geminiSubtopicRoutes = require('./routes/geminiSubtopicRoutes');
+app.use('/api/documents/:documentId/subtopics', geminiSubtopicRoutes);
+
 // Subtopic routes (Step 5: Subtopic Identification)
 const subtopicRoutes = require('./routes/subtopicRoutes');
 app.use('/api/documents/:documentId/subtopics', subtopicRoutes);
-
-// Gemini Subtopic routes (Step 6: AI-Powered Extraction)
-const geminiSubtopicRoutes = require('./routes/geminiSubtopicRoutes');
-app.use('/api/documents/:documentId/subtopics', geminiSubtopicRoutes);
 
 // ============================================
 // ERROR HANDLING MIDDLEWARE
