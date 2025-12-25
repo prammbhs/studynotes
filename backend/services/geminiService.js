@@ -206,8 +206,147 @@ Provide only the summary, no extra text.`;
   }
 };
 
+/**
+ * Generate comprehensive study notes for a subtopic
+ * @param {string} subtopicTitle - Title of the subtopic
+ * @param {string} subtopicDescription - Description/content of the subtopic
+ * @returns {Promise<Object>} Generated notes with sections and key concepts
+ */
+const generateComprehensiveNotes = async (subtopicTitle, subtopicDescription) => {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY not configured');
+    }
+
+    console.log(`📚 Generating comprehensive notes for: "${subtopicTitle}"`);
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+
+    const prompt = `You are an expert educational content creator. Generate comprehensive study notes for the following topic.
+
+TOPIC: ${subtopicTitle}
+
+DESCRIPTION: ${subtopicDescription}
+
+Please provide detailed study notes in the following JSON format ONLY (no additional text):
+{
+  "title": "${subtopicTitle}",
+  "keyPoints": ["point1", "point2", "point3", ...],
+  "mainSections": [
+    {
+      "heading": "Section Title",
+      "content": "Detailed explanation of this section",
+      "concepts": ["concept1", "concept2"]
+    }
+  ],
+  "importantTerms": [
+    {
+      "term": "terminology",
+      "definition": "clear definition"
+    }
+  ],
+  "practicalApplications": ["application1", "application2"],
+  "learningOutcomes": ["outcome1", "outcome2"],
+  "summary": "Brief summary of the entire topic"
+}
+
+Generate ONLY the JSON object, no markdown, no explanations.`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text().trim();
+    
+    // Parse JSON response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Gemini response was not valid JSON');
+    }
+    
+    const notes = JSON.parse(jsonMatch[0]);
+    console.log(`✅ Generated comprehensive notes (${responseText.length} characters)`);
+    
+    return {
+      success: true,
+      notes: notes,
+      generatedAt: new Date(),
+      contentLength: responseText.length
+    };
+  } catch (error) {
+    console.error('❌ Notes generation error:', error.message);
+    throw new Error(`Failed to generate notes: ${error.message}`);
+  }
+};
+
+/**
+ * Convert JSON notes to Markdown format for frontend display
+ * @param {Object} jsonNotes - Notes in JSON format
+ * @returns {string} Markdown formatted notes
+ */
+const convertNotesToMarkdown = (jsonNotes) => {
+  let markdown = '';
+
+  // Title
+  markdown += `# ${jsonNotes.title}\n\n`;
+
+  // Key Points
+  if (jsonNotes.keyPoints && jsonNotes.keyPoints.length > 0) {
+    markdown += `## Key Points\n\n`;
+    jsonNotes.keyPoints.forEach((point) => {
+      markdown += `- ${point}\n`;
+    });
+    markdown += '\n';
+  }
+
+  // Main Sections
+  if (jsonNotes.mainSections && jsonNotes.mainSections.length > 0) {
+    markdown += `## Main Sections\n\n`;
+    jsonNotes.mainSections.forEach((section) => {
+      markdown += `### ${section.heading}\n\n`;
+      markdown += `${section.content}\n\n`;
+      if (section.concepts && section.concepts.length > 0) {
+        markdown += `**Concepts:** ${section.concepts.join(', ')}\n\n`;
+      }
+    });
+  }
+
+  // Important Terms
+  if (jsonNotes.importantTerms && jsonNotes.importantTerms.length > 0) {
+    markdown += `## Important Terms\n\n`;
+    jsonNotes.importantTerms.forEach((term) => {
+      markdown += `**${term.term}:** ${term.definition}\n\n`;
+    });
+  }
+
+  // Practical Applications
+  if (jsonNotes.practicalApplications && jsonNotes.practicalApplications.length > 0) {
+    markdown += `## Practical Applications\n\n`;
+    jsonNotes.practicalApplications.forEach((app) => {
+      markdown += `- ${app}\n`;
+    });
+    markdown += '\n';
+  }
+
+  // Learning Outcomes
+  if (jsonNotes.learningOutcomes && jsonNotes.learningOutcomes.length > 0) {
+    markdown += `## Learning Outcomes\n\n`;
+    jsonNotes.learningOutcomes.forEach((outcome) => {
+      markdown += `- ${outcome}\n`;
+    });
+    markdown += '\n';
+  }
+
+  // Summary
+  if (jsonNotes.summary) {
+    markdown += `## Summary\n\n`;
+    markdown += `${jsonNotes.summary}\n`;
+  }
+
+  return markdown;
+};
+
 module.exports = {
   extractStructureWithGemini,
   generateDetailedNotes,
   generateSummary,
+  generateComprehensiveNotes,
+  convertNotesToMarkdown,
 };

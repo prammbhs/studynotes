@@ -1,10 +1,6 @@
-/**
- * Main Express Server Entry Point
- * Initializes all middleware, configurations, and route handlers
- */
 
 require('dotenv').config();
-require('express-async-errors'); // Enable async/await error handling
+require('express-async-errors');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -14,7 +10,7 @@ const path = require('path');
 // Import configuration modules
 const { connectDatabase } = require('./config/database');
 const { initializeGCS } = require('./config/gcs');
-require('./config/firebase'); // Firebase initializes automatically on import
+require('./config/firebase'); 
 
 // Initialize Express app
 const app = express();
@@ -90,18 +86,23 @@ app.get('/api/health', (req, res) => {
 // Authentication routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
-// Document routes (Step 4: File Upload & GCS)
+// Document routes (File Upload & GCS)
 const documentRoutes = require('./routes/documentRoutes');
 app.use('/api/documents', documentRoutes);
 
-// Gemini Subtopic routes (Step 6: AI-Powered Extraction)
+// Gemini Subtopic routes (AI-Powered Extraction)
 // IMPORTANT: Register before subtopicRoutes so /compare matches before /:subtopicId
 const geminiSubtopicRoutes = require('./routes/geminiSubtopicRoutes');
 app.use('/api/documents/:documentId/subtopics', geminiSubtopicRoutes);
 
-// Subtopic routes (Step 5: Subtopic Identification)
+// Subtopic routes (Subtopic Identification)
 const subtopicRoutes = require('./routes/subtopicRoutes');
 app.use('/api/documents/:documentId/subtopics', subtopicRoutes);
+
+// Notes generation routes (Generate Study Notes)
+// Parallel batch processing for comprehensive notes from subtopics
+const notesRoutes = require('./routes/notesRoutes');
+app.use('/api', notesRoutes);
 
 // ============================================
 // ERROR HANDLING MIDDLEWARE

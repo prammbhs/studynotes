@@ -11,9 +11,9 @@ const {
 const { verifyFirebaseToken } = require('../middleware/auth');
 
 /**
- * POST /api/auth/register
- * Register a new user with email and password
- * Body: { email, password, firstName, lastName }
+  POST /api/auth/register
+  Register a new user with email and password
+  Body: { email, password, firstName, lastName }
  */
 router.post('/register', register);
 
