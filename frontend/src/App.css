@@ -1,0 +1,17 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Main content area */
+#root > div:last-child {
+  flex: 1;
+}
+

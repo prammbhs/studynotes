@@ -1,0 +1,166 @@
+.dashboard {
+  padding: 2rem 0;
+  min-height: calc(100vh - 80px);
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.dashboard-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.upload-section {
+  text-align: center;
+}
+
+.upload-section h2 {
+  margin-bottom: 0.5rem;
+}
+
+.upload-section > p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.upload-area {
+  position: relative;
+  border: 2px dashed #4f46e5;
+  border-radius: 12px;
+  padding: 3rem 1rem;
+  background-color: #f9fafb;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #4338ca;
+  background-color: #f3f4f6;
+}
+
+.upload-label {
+  display: block;
+  cursor: pointer;
+  font-weight: 500;
+  color: #4f46e5;
+  transition: color 0.3s;
+}
+
+.upload-label:hover {
+  color: #4338ca;
+}
+
+.hidden {
+  display: none;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: #f9fafb;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+}
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.document-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.doc-header h3 {
+  margin: 0;
+  word-break: break-word;
+}
+
+.doc-date {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.doc-type {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.doc-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.doc-actions button {
+  width: 100%;
+  justify-content: center;
+}
+
+.doc-subtopics,
+.doc-notes {
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #4f46e5;
+}
+
+.doc-subtopics h4,
+.doc-notes h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.doc-subtopics ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.doc-subtopics li {
+  padding: 0.25rem 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.doc-subtopics li:before {
+  content: '• ';
+  color: #4f46e5;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.doc-notes button {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-area {
+    padding: 2rem 1rem;
+  }
+}
