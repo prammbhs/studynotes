@@ -1,6 +1,6 @@
 # StudyNotes - AI-Powered Study Material Generator
 
-A full-stack application that transforms study materials into organized, AI-generated notes and study guides. Upload documents, extract key topics with AI, and generate comprehensive study notes.
+A full-stack application that genreate and  organize, AI-generated notes and study guides. Upload documents, extract key topics with AI, and generate comprehensive study notes.
 
 ## 🚀 Features
 
