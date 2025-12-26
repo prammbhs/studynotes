@@ -1,5 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from '@radix-ui/react-toast';
+import { ToastViewport } from './components/ui/Toast.jsx';
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
@@ -8,15 +11,14 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import './styles/global.css';
-import './App.css';
 
 function AppContent() {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="flex-center" style={{ minHeight: '100vh' }}>
-        <div className="loading"></div>
+      <div className="flex items-center justify-center" style={{ minHeight: '100vh' }}>
+        <div className="w-12 h-12 border-4 border-indigo-300 dark:border-gray-600 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -58,9 +60,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider swipeDirection="right">
+          <AppContent />
+          <ToastViewport />
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

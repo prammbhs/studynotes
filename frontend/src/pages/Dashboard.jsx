@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { documentAPI, subtopicAPI, notesAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import './Dashboard.css';
 
 const Dashboard = () => {
   const [documents, setDocuments] = useState([]);
@@ -128,31 +127,41 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard">
-      <div className="container">
-        <div className="dashboard-header">
-          <h1>📖 My Documents</h1>
-          <p>Upload, extract, and generate notes from your study materials</p>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="mb-12 space-y-3 animate-fadeIn">
+          <h1 className="text-5xl font-black text-gray-900 dark:text-white">📖 My Documents</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">Upload, extract, and generate notes from your study materials</p>
         </div>
 
         {error && (
-          <div className="alert alert-error mb-3">
-            <span>{error}</span>
-            <button onClick={() => setError('')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-xl flex items-center justify-between animate-shake">
+            <span className="text-red-700 dark:text-red-400 font-semibold">{error}</span>
+            <button 
+              onClick={() => setError('')}
+              className="text-red-700 dark:text-red-400 hover:opacity-70 transition text-2xl font-bold"
+            >
+              ×
+            </button>
           </div>
         )}
 
         {success && (
-          <div className="alert alert-success mb-3">
-            <span>{success}</span>
-            <button onClick={() => setSuccess('')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>×</button>
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/30 border-2 border-green-200 dark:border-green-700 rounded-xl flex items-center justify-between animate-pulse">
+            <span className="text-green-700 dark:text-green-400 font-semibold">{success}</span>
+            <button 
+              onClick={() => setSuccess('')}
+              className="text-green-700 dark:text-green-400 hover:opacity-70 transition text-2xl font-bold"
+            >
+              ×
+            </button>
           </div>
         )}
 
-        <div className="upload-section card mb-4">
-          <h2>Upload Document</h2>
-          <p>Supported formats: PDF, DOCX, TXT, Images (PNG, JPG, JPEG)</p>
-          <div className="upload-area">
+        <div className="mb-12 p-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-2xl border-2 border-indigo-200 dark:border-indigo-700 transition-colors duration-300 shadow-lg">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">📤 Upload Document</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">Supported formats: PDF, DOCX, TXT, Images (PNG, JPG, JPEG)</p>
+          <div className="border-2 border-dashed border-indigo-300 dark:border-indigo-600 rounded-2xl p-12 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-300 cursor-pointer bg-white dark:bg-gray-800/50">
             <input
               type="file"
               id="fileInput"
@@ -161,8 +170,16 @@ const Dashboard = () => {
               className="hidden"
               accept=".pdf,.docx,.txt,.png,.jpg,.jpeg"
             />
-            <label htmlFor="fileInput" className="upload-label">
-              {uploading ? 'Uploading...' : '📁 Click or drag to upload'}
+            <label htmlFor="fileInput" className="block cursor-pointer">
+              <div className="text-6xl mb-4 transform hover:scale-110 transition-transform duration-300">
+                {uploading ? '⏳' : '📁'}
+              </div>
+              <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                {uploading ? 'Uploading...' : 'Click or drag to upload'}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Drop your files here or click to browse
+              </p>
             </label>
           </div>
         </div>
@@ -170,85 +187,85 @@ const Dashboard = () => {
         {loading ? (
           <LoadingSpinner fullPage />
         ) : documents.length === 0 ? (
-          <div className="empty-state card">
-            <p>No documents yet. Upload your first study material to get started!</p>
+          <div className="text-center py-24 bg-gray-100 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <div className="text-6xl mb-4">📚</div>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No documents yet</p>
+            <p className="text-lg text-gray-600 dark:text-gray-400">Upload your first study material to get started!</p>
           </div>
         ) : (
-          <div className="documents-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-stagger">
             {documents.map((doc) => (
-              <div key={doc.id} className="document-card card">
-                <div className="doc-header">
-                  <h3>📄 {doc.name || 'Untitled'}</h3>
-                  <span className="doc-date">
-                    {new Date(doc.createdAt).toLocaleDateString()}
+              <div 
+                key={doc.id} 
+                className="group p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-xl hover:shadow-2xl dark:hover:shadow-2xl dark:hover:shadow-indigo-900 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2 animate-fadeIn border border-gray-200 dark:border-gray-700"
+              >
+                <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-2 line-clamp-2">
+                    📄 {doc.name || 'Untitled'}
+                  </h3>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(doc.createdAt).toLocaleDateString()} • {doc.type || 'Unknown'}
                   </span>
                 </div>
 
-                <p className="doc-type">Type: {doc.type || 'Unknown'}</p>
-
-                <div className="doc-actions">
+                <div className="space-y-2 mb-4">
                   <button
-                    className="btn btn-secondary"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg text-sm"
                     onClick={() => handleExtractWithGemini(doc.id)}
                     disabled={processingId === doc.id}
                   >
-                    {processingId === doc.id ? (
-                      <>
-                        <LoadingSpinner /> Extracting...
-                      </>
-                    ) : (
-                      '✨ Extract Subtopics'
-                    )}
+                    {processingId === doc.id ? '⏳ Extracting...' : '✨ Extract Subtopics'}
                   </button>
 
                   <button
-                    className="btn btn-secondary"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg text-sm"
                     onClick={() => handleGenerateNotes(doc.id)}
                     disabled={processingId === doc.id}
                   >
-                    {processingId === doc.id ? (
-                      <>
-                        <LoadingSpinner /> Generating...
-                      </>
-                    ) : (
-                      '📝 Generate Notes'
-                    )}
+                    {processingId === doc.id ? '⏳ Generating...' : '📝 Generate Notes'}
                   </button>
 
-                  <button
-                    className="btn btn-outline"
-                    onClick={() => handleDownload(doc.id)}
-                  >
-                    ⬇️ Download
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      className="px-3 py-2 bg-gray-500 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 text-sm"
+                      onClick={() => handleDownload(doc.id)}
+                      title="Download"
+                    >
+                      ⬇️ Download
+                    </button>
 
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDeleteDocument(doc.id)}
-                  >
-                    🗑️ Delete
-                  </button>
+                    <button
+                      className="px-3 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 text-sm"
+                      onClick={() => handleDeleteDocument(doc.id)}
+                      title="Delete"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
                 </div>
 
                 {doc.subtopics && (
-                  <div className="doc-subtopics mt-2">
-                    <h4>Subtopics Extracted:</h4>
-                    <ul>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 mb-3">
+                    <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-sm">✨ Subtopics Extracted</h4>
+                    <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
                       {doc.subtopics.slice(0, 3).map((sub, idx) => (
-                        <li key={idx}>{sub}</li>
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-blue-600 dark:text-blue-400 font-bold">→</span>
+                          <span className="line-clamp-1">{sub}</span>
+                        </li>
                       ))}
                       {doc.subtopics.length > 3 && (
-                        <li>... and {doc.subtopics.length - 3} more</li>
+                        <li className="text-gray-500 dark:text-gray-500 italic font-semibold">... +{doc.subtopics.length - 3} more</li>
                       )}
                     </ul>
                   </div>
                 )}
 
                 {doc.notes && (
-                  <div className="doc-notes mt-2">
-                    <h4>📚 Notes Available</h4>
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border-2 border-green-200 dark:border-green-800">
+                    <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-sm">📚 Notes Available</h4>
                     <button
-                      className="btn btn-primary"
+                      className="w-full px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 text-xs shadow-md hover:shadow-lg"
                       onClick={() => setSelectedDocument(doc.id)}
                     >
                       View Notes

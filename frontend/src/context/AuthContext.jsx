@@ -1,5 +1,11 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { 
+  registerUser, 
+  loginUser, 
+  logoutUser, 
+  onAuthChange,
+  getCurrentUserToken
+} from '../services/firebase';
 
 export const AuthContext = createContext();
 
@@ -8,30 +14,52 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Listen to Firebase auth state changes
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Error parsing stored user:', e);
+    const unsubscribe = onAuthChange(async (firebaseUser) => {
+      if (firebaseUser) {
+        // User is logged in
+        const tokenResult = await getCurrentUserToken();
+        if (tokenResult.success) {
+          const userData = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: firebaseUser.displayName,
+          };
+          localStorage.setItem('authToken', tokenResult.token);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+        }
+      } else {
+        // User is logged out
+        localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        setUser(null);
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
   const register = async (email, password, name) => {
     try {
       setError(null);
-      const response = await authAPI.register({ email, password, name });
-      const { token, user: userData } = response.data;
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return response.data;
+      const result = await registerUser(email, password, name);
+      
+      if (!result.success) {
+        setError(result.error);
+        throw new Error(result.error);
+      }
+
+      // Store token and user data
+      localStorage.setItem('authToken', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
+      setUser(result.user);
+      
+      return result;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+      const errorMessage = err.message || 'Registration failed';
       setError(errorMessage);
       throw err;
     }
@@ -40,34 +68,64 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await authAPI.login({ email, password });
-      const { token, user: userData } = response.data;
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
-      return response.data;
+      const result = await loginUser(email, password);
+      
+      if (!result.success) {
+        setError(result.error);
+        throw new Error(result.error);
+      }
+
+      // Store token and user data
+      localStorage.setItem('authToken', result.token);
+      localStorage.setItem('user', JSON.stringify(result.user));
+      setUser(result.user);
+      
+      return result;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      const errorMessage = err.message || 'Login failed';
       setError(errorMessage);
       throw err;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    setUser(null);
+  const logout = async () => {
+    try {
+      setError(null);
+      await logoutUser();
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      setUser(null);
+    } catch (err) {
+      const errorMessage = err.message || 'Logout failed';
+      setError(errorMessage);
+      console.error('Logout error:', err);
+    }
   };
 
   const updateProfile = async (profileData) => {
     try {
       setError(null);
-      const response = await authAPI.updateProfile(profileData);
-      localStorage.setItem('user', JSON.stringify(response.data));
-      setUser(response.data);
-      return response.data;
+      // Call backend API to update profile
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data);
+      return data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Profile update failed';
+      const errorMessage = err.message || 'Profile update failed';
       setError(errorMessage);
       throw err;
     }
@@ -76,11 +134,23 @@ export const AuthProvider = ({ children }) => {
   const deleteAccount = async () => {
     try {
       setError(null);
-      await authAPI.deleteAccount();
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/auth/profile', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account');
+      }
+
+      await logoutUser();
       logout();
       return true;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Account deletion failed';
+      const errorMessage = err.message || 'Account deletion failed';
       setError(errorMessage);
       throw err;
     }
