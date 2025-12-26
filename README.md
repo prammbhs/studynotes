@@ -325,6 +325,74 @@ Can be deployed to:
 - createdAt
 - updatedAt
 
+
+## Git Commands Used
+
+Below are the major Git commands used throughout the project:
+
+- `git init` – Initialize a local Git repository  
+- `git status` – Check file status  
+- `git add` – Stage files for commit  
+- `git commit -m "message"` – Commit changes with meaningful messages  
+- `git branch` – Create and list branches  
+- `git checkout` – Switch between branches  
+- `git merge` – Merge branches  
+- `git rm --cached` – Remove files from tracking without deleting locally  
+- `git remote add origin` – Connect local repo to GitHub  
+- `git push` – Push commits to GitHub  
+- `git pull` – Fetch and merge changes from GitHub  
+- `git clone` – Clone remote repository  
+
+
+
+## Branching Strategy
+
+The following branches were created and used:
+
+- **main**  
+  Final stable branch containing merged code
+
+- **feature/backend**  
+  Used for backend development (Express server and APIs)
+
+- **feature/frontend**  
+  Used for frontend development (React UI)
+
+- **bugfix/readme-fix**  
+  Used to fix documentation issues
+
+- **experiment/ui-test**  
+  Used to experiment with UI layout changes
+
+This branching strategy helps in organizing work and avoiding conflicts during development.
+
+
+
+## Merge Conflict Demonstration
+
+A merge conflict was intentionally created to demonstrate conflict handling.
+
+### How the conflict occurred:
+- The same section in `README.md` was modified differently in `main` and `feature/frontend` branches.
+- When merging `feature/frontend` into `main`, Git detected conflicting changes.
+
+### Resolution:
+- The conflict markers were manually resolved.
+- The correct content was selected and committed.
+
+This demonstrates proper understanding of **merge conflicts and their resolution**.
+
+
+## Screenshots
+
+Screenshots included in the `screenshots/` folder:
+
+- Git branch list
+- Commit history graph
+- Merge conflict screen
+- Conflict resolution
+- GitHub repository view
+
 ## 🤝 Contributing
 
 1. Create a feature branch
@@ -344,12 +412,6 @@ For issues, questions, or suggestions:
 3. Open an issue on GitHub
 4. Contact the development team
 
-## 🔗 Links
-
-- [Backend API Documentation](backend/FRONTEND_SUMMARY.md)
-- [Frontend Documentation](frontend/FRONTEND_README.md)
-- [Architecture Diagrams](document/ARCHITECTURE_DIAGRAMS.md)
-- [Implementation Complete](document/IMPLEMENTATION_COMPLETE.md)
 
 ## 📅 Project Status
 
@@ -358,7 +420,7 @@ For issues, questions, or suggestions:
 - ✅ Authentication System - Complete
 - ✅ Document Upload & Processing - Complete
 - ✅ AI Integration (Gemini) - Complete
-- ✅ Note Generation - Complete
+- 🔄 Note Generation - In Progress
 - 🔄 Testing & Optimization - In Progress
 - 🔄 Deployment & Production - Next Phase
 
