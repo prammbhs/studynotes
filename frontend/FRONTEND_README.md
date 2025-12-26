@@ -19,7 +19,7 @@ A modern React application for uploading study materials, extracting key topics 
 - **React Router v7** - Client-side routing
 - **Axios** - HTTP client with interceptors
 - **CSS3** - Responsive styling
-
+- **Daisy-UI** - UI library
 ## Project Structure
 
 ```
